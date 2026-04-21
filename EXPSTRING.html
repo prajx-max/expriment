@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamic Name Deconstructor</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #f0faf4;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid #d1f0dd;
+    padding: 40px 36px;
+    width: 100%;
+    max-width: 520px;
+    box-shadow: 0 4px 6px rgba(16, 130, 72, 0.04), 0 12px 32px rgba(16, 130, 72, 0.06);
+  }
+
+  /* ── HEADER ── */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .icon-wrap {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: #e8f8ee;
+    border: 1px solid #b6e8c8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .icon-wrap svg { width: 20px; height: 20px; }
+
+  .header-text h1 {
+    font-size: 17px;
+    font-weight: 600;
+    color: #0f2d1a;
+    letter-spacing: -0.3px;
+  }
+
+  .header-text p {
+    font-size: 13px;
+    color: #6b9e7e;
+    margin-top: 2px;
+  }
+
+  /* ── LABEL ── */
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #2d6a44;
+    margin-bottom: 8px;
+    letter-spacing: 0.01em;
+  }
+
+  /* ── INPUT ── */
+  .input-wrap {
+    position: relative;
+    margin-bottom: 6px;
+  }
+
+  .input-wrap svg {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: #a8d5b8;
+    pointer-events: none;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 12px 14px 12px 38px;
+    border: 1.5px solid #d1f0dd;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    color: #0f2d1a;
+    background: #f8fdfb;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    letter-spacing: 0.01em;
+  }
+
+  input[type="text"]::placeholder { color: #b3d9c2; }
+
+  input[type="text"]:focus {
+    border-color: #22c55e;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+  }
+
+  /* ── ERROR ── */
+  .error-msg {
+    font-size: 12px;
+    color: #dc2626;
+    margin-top: 6px;
+    margin-bottom: 2px;
+    display: none;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .error-msg svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+  /* ── BUTTONS ── */
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 11px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    letter-spacing: -0.1px;
+  }
+
+  .btn:active { transform: scale(0.97); }
+
+  .btn-primary {
+    flex: 1;
+    background: #16a34a;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(22, 163, 74, 0.28);
+    justify-content: center;
+  }
+
+  .btn-primary:hover {
+    background: #15803d;
+    box-shadow: 0 4px 14px rgba(22, 163, 74, 0.36);
+  }
+
+  .btn-reset {
+    background: #f0faf4;
+    color: #2d6a44;
+    border: 1.5px solid #d1f0dd;
+  }
+
+  .btn-reset:hover { background: #e4f5ec; border-color: #b6e8c8; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 28px 0;
+  }
+
+  .divider-line { flex: 1; height: 1px; background: #e8f5ed; }
+
+  .divider-label {
+    font-size: 11px;
+    color: #a8d5b8;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 20px 0 4px;
+  }
+
+  .empty-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #f0faf4;
+    border: 1px solid #d1f0dd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+  }
+
+  .empty-icon svg { width: 22px; height: 22px; color: #a8d5b8; }
+
+  .empty-state h3 { font-size: 14px; font-weight: 500; color: #6b9e7e; margin-bottom: 4px; }
+  .empty-state p { font-size: 12px; color: #b3d9c2; }
+
+  /* ── OUTPUT ── */
+  #output-area { display: none; }
+
+  .fields-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .field-card {
+    border-radius: 12px;
+    border: 1.5px solid #d1f0dd;
+    background: #f8fdfb;
+    padding: 14px 14px 12px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+  }
+
+  .field-card.active {
+    background: #ffffff;
+    border-color: #86efac;
+    box-shadow: 0 2px 12px rgba(34, 197, 94, 0.08);
+  }
+
+  .field-top-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #22c55e, #86efac);
+    border-radius: 12px 12px 0 0;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .field-card.active .field-top-bar { opacity: 1; }
+
+  .field-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #a8d5b8;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .field-card.active .field-label { color: #16a34a; }
+
+  .field-value {
+    font-size: 15px;
+    font-weight: 500;
+    color: #0f2d1a;
+    word-break: break-word;
+    line-height: 1.3;
+    transition: color 0.2s;
+  }
+
+  .field-value.na {
+    color: #d1f0dd;
+    font-weight: 400;
+    font-size: 14px;
+  }
+
+  .field-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    font-size: 10px;
+    font-weight: 500;
+    color: #16a34a;
+    background: #dcfce7;
+    border-radius: 100px;
+    padding: 2px 8px;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .field-card.active .field-badge { opacity: 1; }
+
+  .field-badge::before {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #16a34a;
+  }
+
+  /* ── TOKEN INFO ── */
+  .token-info {
+    margin-top: 16px;
+    padding: 10px 14px;
+    background: #f0faf4;
+    border-radius: 8px;
+    border: 1px solid #d1f0dd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .token-info span {
+    font-size: 12px;
+    color: #6b9e7e;
+  }
+
+  .token-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: #16a34a;
+    background: #dcfce7;
+    padding: 2px 10px;
+    border-radius: 100px;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 440px) {
+    .card { padding: 28px 20px; }
+    .fields-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <div class="header">
+    <div class="icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+    </div>
+    <div class="header-text">
+      <h1>Name Expander</h1>
+      <p>Enter any name with format rules</p>
+    </div>
+  </div>
+
+  <label for="nameInput">Full Name</label>
+  <div class="input-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input
+      type="text"
+      id="nameInput"
+      placeholder="e.g. RAHUL KUMAR M P"
+      autocomplete="off"
+      spellcheck="false"
+    />
+  </div>
+
+  <div class="error-msg" id="errorMsg">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    Please enter a name
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="runBtn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+      Expand
+    </button>
+    <button class="btn btn-reset" id="resetBtn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/>
+      </svg>
+      Reset
+    </button>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <span class="divider-label">Result</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="empty-state" id="emptyState">
+    <div class="empty-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="4"/>
+        <line x1="9" y1="9" x2="15" y2="9"/>
+        <line x1="9" y1="12" x2="15" y2="12"/>
+        <line x1="9" y1="15" x2="13" y2="15"/>
+      </svg>
+    </div>
+    <h3>Nothing to show yet</h3>
+    <p>Enter a full name above and run.</p>
+  </div>
+
+  <div id="output-area">
+    <div class="fields-grid">
+
+      <div class="field-card" id="card-first">
+        <div class="field-top-bar"></div>
+        <span class="field-label">First Name</span>
+        <div class="field-value na" id="val-first">N/A</div>
+        <div class="field-badge" id="badge-first">parsed</div>
+      </div>
+
+      <div class="field-card" id="card-middle">
+        <div class="field-top-bar"></div>
+        <span class="field-label">Middle Name</span>
+        <div class="field-value na" id="val-middle">N/A</div>
+        <div class="field-badge" id="badge-middle">parsed</div>
+      </div>
+
+      <div class="field-card" id="card-last">
+        <div class="field-top-bar"></div>
+        <span class="field-label">Last Name</span>
+        <div class="field-value na" id="val-last">N/A</div>
+        <div class="field-badge" id="badge-last">parsed</div>
+      </div>
+
+    </div>
+
+    <div class="token-info">
+      <span>Words detected</span>
+      <span class="token-count" id="tokenCount">0</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const nameInput  = document.getElementById('nameInput');
+  const runBtn     = document.getElementById('runBtn');
+  const resetBtn   = document.getElementById('resetBtn');
+  const errorMsg   = document.getElementById('errorMsg');
+  const emptyState = document.getElementById('emptyState');
+  const outputArea = document.getElementById('output-area');
+  const tokenCount = document.getElementById('tokenCount');
+
+  // ── FULLY DYNAMIC PARSER ───────────────────────────
+  function parseName(raw) {
+    const trimmed = raw.trim().replace(/\s+/g, ' ').toUpperCase();
+    if (!trimmed) return null;
+    const p = trimmed.split(' ');
+    const len = p.length;
+
+    // Helper to check if a string is a single-letter initial
+    const isInit = (str) => str.length === 1;
+
+    // 1. Pattern: [Word] [Init1] [Init2] [Init3] [Init4] (e.g., "KAVYA M V P S")
+    if (len === 5 && !isInit(p[0]) && isInit(p[1]) && isInit(p[2]) && isInit(p[3]) && isInit(p[4])) {
+      return { first: `${p[1]} ${p[2]}`, middle: `${p[3]} ${p[4]}`, last: p[0] };
+    }
+
+    // 2. Pattern: [Word1] [Word2] [Init1] [Init2] [Init3] (e.g., "KAVYA SHREE M V P")
+    if (len === 5 && !isInit(p[0]) && !isInit(p[1]) && isInit(p[2]) && isInit(p[3]) && isInit(p[4])) {
+      return { 
+        first: `${p[2]} ${p[3]}`, // M V
+        middle: `${p[4]} ${p[0]}`, // P KAVYA
+        last: p[1]                // SHREE
+      };
+    }
+
+    // 3. Pattern: [Word1] [Word2] [Init] [Word3] [Word4] (e.g., "KAVYA SHREE S VIRU PUTTA")
+    if (len === 5 && !isInit(p[0]) && !isInit(p[1]) && isInit(p[2]) && !isInit(p[3]) && !isInit(p[4])) {
+      return { first: `${p[0]} ${p[1]}`, middle: `${p[2]} ${p[3]}`, last: p[4] };
+    }
+
+    // 4. Pattern: [Word1] [Word2] [Word3] [Word4] (e.g., "KAVYA SHREE VIRU PUTTA")
+    if (len === 4 && !isInit(p[0]) && !isInit(p[1]) && !isInit(p[2]) && !isInit(p[3])) {
+      return { first: p[0], middle: `${p[1]} ${p[2]}`, last: p[3] };
+    }
+
+    // 5. Pattern: [Word] [Init1] [Init2] [Init3] (e.g., "KAVYA M V P")
+    if (len === 4 && !isInit(p[0]) && isInit(p[1]) && isInit(p[2]) && isInit(p[3])) {
+      return { first: p[1], middle: `${p[2]} ${p[3]}`, last: p[0] };
+    }
+
+    // 6. Pattern: [Word] [Init1] [Init2] (e.g., "KAVYA M V")
+    if (len === 3 && !isInit(p[0]) && isInit(p[1]) && isInit(p[2])) {
+      return { first: p[1], middle: p[2], last: p[0] };
+    }
+
+    // 7. Pattern: [Word1] [Word2] [Init] (e.g., "KAVYA SHREE M")
+    if (len === 3 && !isInit(p[0]) && !isInit(p[1]) && isInit(p[2])) {
+      return { first: p[2], middle: p[0], last: p[1] };
+    }
+
+    // 8. Pattern: [Word1] [Init] [Word2] (e.g., "KAVYA M SHREE")
+    if (len === 3 && !isInit(p[0]) && isInit(p[1]) && !isInit(p[2])) {
+      return { first: p[0], middle: p[1], last: p[2] };
+    }
+
+    // 9. Pattern: [Word1] [Word2] [Word3] (e.g., "KAVYA SHREE VIRU")
+    if (len === 3 && !isInit(p[0]) && !isInit(p[1]) && !isInit(p[2])) {
+      return { first: p[0], middle: p[1], last: p[2] };
+    }
+
+    // 10. Standard Fallbacks
+    if (len === 1) return { first: 'N/A',  middle: 'N/A', last: p[0] };
+    if (len === 2) return { first: p[0],   middle: 'N/A', last: p[1] };
+
+    // Catch-all for names longer than 5 words or unusual structures
+    return {
+      first:  p[0],
+      middle: p.slice(1, -1).join(' '),
+      last:   p[len - 1],
+    };
+  }
+
+  // ── SET FIELD ──────────────────────────────────────
+  function setField(id, value) {
+    const isNA  = !value || value === 'N/A' || value === '';
+    const card  = document.getElementById('card-'  + id);
+    const val   = document.getElementById('val-'   + id);
+
+    val.textContent = isNA ? 'N/A' : value;
+    val.className   = 'field-value' + (isNA ? ' na' : '');
+    card.className  = 'field-card'  + (isNA ? '' : ' active');
+  }
+
+  // ── RUN ────────────────────────────────────────────
+  function run() {
+    const result = parseName(nameInput.value);
+
+    // Hide error by default
+    errorMsg.style.display = 'none';
+
+    if (!result) {
+      errorMsg.style.display = 'flex';
+      outputArea.style.display = 'none';
+      emptyState.style.display = 'block';
+      return;
+    }
+
+    setField('first',  result.first);
+    setField('middle', result.middle);
+    setField('last',   result.last);
+
+    const count = nameInput.value.trim().replace(/\s+/g, ' ').split(' ').length;
+    tokenCount.textContent = count;
+
+    emptyState.style.display = 'none';
+    outputArea.style.display = 'block';
+  }
+
+  // ── RESET ──────────────────────────────────────────
+  function reset() {
+    nameInput.value          = '';
+    errorMsg.style.display   = 'none';
+    outputArea.style.display = 'none';
+    emptyState.style.display = 'block';
+    nameInput.focus();
+  }
+
+  // ── EVENTS ─────────────────────────────────────────
+  runBtn.addEventListener('click', run);
+  resetBtn.addEventListener('click', reset);
+  nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
+</script>
+
+</body>
+</html>
